@@ -1,0 +1,3 @@
+insclientportal_ui: ${insclientportal_ui}
+insclientportal_api: ${insclientportal_api}
+env_domain: ${env_domain}

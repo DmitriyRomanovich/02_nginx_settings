@@ -1,0 +1,5 @@
+env_domain: ${env_domain}
+azure_subscription_id: ${azure_subscription_id}
+azure_dns_rg: ${azure_dns_rg}
+azure_dns_zone: ${azure_dns_zone}
+aks_managed_identity_client_id: ${aks_managed_identity_client_id}

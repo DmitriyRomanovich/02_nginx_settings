@@ -1,0 +1,28 @@
+apiVersion: cert-manager.io/v1.11.0
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-cluster-issuer-{{ .Values.env_domain }}
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: siarhei.bandarenka@itechart-group.com
+
+    # Name of a secret used to store the ACME account private key
+    privateKeySecretRef:
+      name: letsencrypt-cluster-issuer-key
+
+    # ACME DNS-01 provider configurations
+    solvers:
+    - dns01:
+        azureDNS:
+          subscriptionID: {{ .Values.azure_subscription_id }}
+          resourceGroupName: {{ .Values.azure_dns_rg }}
+          hostedZoneName: {{ .Values.azure_dns_zone }}
+          # Azure Cloud Environment, default to AzurePublicCloud
+          environment: AzurePublicCloud
+          # optional, only required if node pools have more than 1 managed identity assigned
+          managedIdentity:
+            # client id of the node pool managed identity (can not be set at the same time as resourceID)
+            clientID: {{ .Values.aks_managed_identity_client_id }}
+            # resource id of the managed identity (can not be set at the same time as clientID)
+            # resourceID: YOUR_MANAGED_IDENTITY_RESOURCE_ID

@@ -1,0 +1,16 @@
+apiVersion: cert-manager.io/v1.11.0
+kind: Certificate
+metadata:
+  name: {{ .Values.env_domain }}-tls
+spec:
+  secretName: {{ .Values.env_domain }}-tls
+  issuerRef:
+    name: letsencrypt-cluster-issuer-{{ .Values.env_domain }}
+    kind: ClusterIssuer
+### Domains for DNS. Localization is used for dev only
+  dnsNames:
+    - "*.{{ .Values.env_domain }}.glowfinsvs.com"
+    - "*.lm.{{ .Values.env_domain }}.glowfinsvs.com"
+    - "*.platform.{{ .Values.env_domain }}.glowfinsvs.com"
+    - "*.demo.{{ .Values.env_domain }}.glowfinsvs.com"
+    - "*.localization.{{ .Values.env_domain }}.glowfinsvs.com"

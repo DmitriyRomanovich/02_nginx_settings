@@ -1,0 +1,192 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/ingress.allow-http: "false"
+    cert-manager.io/cluster-issuer: letsencrypt-cluster-issuer-{{ .Values.env_domain }}
+    nginx.ingress.kubernetes.io/proxy-body-size: 10m
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+      more_set_headers "Strict-Transport-Security: max-age=31536000; includeSubDomains";
+      more_set_headers "Content-Security-Policy frame-src https://*.glowfinsvs.com https://*.adyen.com https://*.cdn-net.com https://*.surveymonkey.com;frame-ancestors https://*.glowfinsvs.com https://*.samsung.com https://*.surveymonkey.com;connect-src 'self' https://*.glowfinsvs.com wss://*.glowfinsvs.com https://*.google-analytics.com https://*.adyen.com https://*.cdn-net.com https://*.microsoftonline.com https://*.surveymonkey.com;upgrade-insecure-requests;";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-Frame-Options: SAMEORIGIN";
+
+  name: {{ .Values.env_domain }}
+spec:
+#SSL
+  tls:
+  - hosts:
+    - "*.{{ .Values.env_domain }}.glowfinsvs.com"
+    secretName: {{ .Values.env_domain }}-tls
+
+#Rules
+  rules:
+
+  - host: fincalc.platform.{{ .Values.env_domain }}.glowfinsvs.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.calc }}
+            port:
+              name: http
+
+
+  - host: platform.{{ .Values.env_domain }}.glowfinsvs.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.glowapi }}
+            port:
+              name: http
+      - path: /api/accertify/transaction/resolve
+        pathType: Prefix
+        backend:
+          service:
+            name: accertify
+            port:
+              name: http
+
+  - host: lm.{{ .Values.env_domain }}.glowfinsvs.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.loanapi }}
+            port:
+              name: http
+
+  - host: paymentsession.{{ .Values.env_domain }}.glowfinsvs.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.paymentui }}
+            port:
+              name: http
+
+
+  - host: app.lm.{{ .Values.env_domain }}.glowfinsvs.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.loanui }}
+            port:
+              name: http
+
+
+  - host: app.platform.{{ .Values.env_domain }}.glowfinsvs.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.glowui }}
+            port:
+              name: http
+
+
+  - host: demo.{{ .Values.env_domain }}.glowfinsvs.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.demo_back }}
+            port:
+              name: http
+
+
+  - host: app.demo.{{ .Values.env_domain }}.glowfinsvs.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.demo_ui }}
+            port:
+              name: http
+
+  - host: ws.{{ .Values.env_domain }}.glowfinsvs.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.signalr }}
+            port:
+              name: http
+
+  - host: bankdetails.{{ .Values.env_domain }}.glowfinsvs.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.bankapi }}
+            port:
+              name: http
+
+  - host: query.{{ .Values.env_domain }}.glowfinsvs.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.querytool }}
+            port:
+              name: http
+
+  - host: localization.{{ .Values.env_domain }}.glowfinsvs.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: strapi-alias
+            port:
+              number: 1337
+
+  - host: preview.localization.{{ .Values.env_domain }}.glowfinsvs.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cmspreview-alias
+            port:
+              number: 80
+
+#  - host: rabbitmq.{{ .Values.env_domain }}.glowfinsvs.com
+#    http:
+#      paths:
+#      - path: /
+#        pathType: Prefix
+#        backend:
+#          service:
+#            name: rabbitmq
+#            port:
+#              number: 15672
+
